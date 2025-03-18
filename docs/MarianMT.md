@@ -14,6 +14,7 @@
 ## Basic Understanding of MarianMT
 
 ### What is MarianMT?
+
 - MarianMT is a collections of pre-trained translation models that support wide range of 
 language pairs. 
 
@@ -22,7 +23,10 @@ language pairs.
 - Based on Marian neural machine translation architecture
     - Designed for high-quality translation across numerous languages
 
+- Lightweight
+
 ### Pre-trained Models
+
 - All Models use the following format
     - `Helsinki-NLP/opus-mt-{source language}-{target language}`
 - **Model For This Case** 
@@ -43,23 +47,32 @@ language pairs.
 
         'able'
     - Sentence Piece is a trained model that learns how to break down text 
-    based on statisitcal patterns
+    based on statistical patterns
 
     - Can rebuild words from these pieces
-
-- TODO
 
 ---
 
 ## Neural Machine Translation Architecture
 
-### TODO
+### Basic Architecture
 
----
+- **Encoder**
 
-## Integration with Speech Recognition
+    Processes a given sentence from the source language and captures it's meaning.
 
-### TODO
+- **Decoder**
+
+    Generates a translation based on the meaning captured from the encoder and crafts a 
+    a sentence in the target language
+
+- **Cross Attention**
+
+    Allows for the decoder to focus on relevant parts of the source sentence *while* translating
+
+- **Positional Encoding**
+
+    Captures the order of the words in the sentence
 
 ---
 
@@ -127,6 +140,7 @@ Below are 2 methods that work around this conflict:
 - [MarianMT Hugging Face Documentation](https://huggingface.co/docs/transformers/en/model_doc/marian)
 
 ### Example Implementations
+- [[MarianMT] Know📚, Train⚙️ & Infer🧐](https://www.kaggle.com/code/suraj520/marianmt-know-train-infer)
 
 ### Additional Learning Materials
 - [Building a Simple Language Translation Tool Using a Pre-Trained Translation Model - GeeksforGeeks](https://www.geeksforgeeks.org/building-a-simple-language-translation-tool-using-a-pre-trained-translation-model/#1-marianmt)
