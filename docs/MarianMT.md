@@ -74,7 +74,7 @@ language pairs.
 
 ### Basic Usage
 
-See [Example Usage](docs/MarianMT_Example.ipynb) for using basic model
+See [Example Usage](https://github.com/Brycekratzer/NLP-Final-Project-Translatinator/blob/main/docs/MarianMT_Example.ipynb) for using basic model
 
 ---
 
