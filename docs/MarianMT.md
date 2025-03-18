@@ -66,6 +66,7 @@ language pairs.
 ## Implementation Guidelines
 
 ### Setting Up MarianMT with Hugging Face
+
 - Required libraries and dependencies
     - **transformers** Hugging Face Library
         - MarianMTModel
@@ -80,7 +81,43 @@ See [Example Usage](https://github.com/Brycekratzer/NLP-Final-Project-Translatin
 
 ## Evaluation Metrics
 
-### TODO
+There are multiple ways to evaluate a model's performance for Translation. Unlike a classical Machine Learning task where the test set is used to see how well a model performed, translation can be done in multiple ways and still keep a similar meaning that can be interpreted to a good degree given some context. This leads to a more complex way of 
+assessing how well some text was translated.
+
+Below are 2 methods that work around this conflict:
+
+### Metrics
+
+- **BLEU Method**
+
+    BLEU (Bilingual Evaluation Understudy) compares machine translations against human references by measuring n-gram overlap. It calculates how many word sequences in the machine output match the reference translations, applies a brevity penalty for short translations, and combines scores from different n-gram sizes (1-4).
+
+    Scores range from 0 to 1, with higher scores indicating better quality. BLEU is valuable for quick, consistent evaluations but doesn't account for synonyms or alternative phrasings that might be equally valid translations. 
+
+    - Basic Usage (Python)
+
+        ```
+        predictions = ['Hello! My name is Bryce. How are you?']
+
+        references = ['Hello! My name is Bryce. How are you?', 
+                    'Hi! My name's Bryce. How are you?']
+
+        bleu = evalute.load('bleu')
+
+        results = bleu.compute(predictions=predictions, references=references)
+
+        ```
+
+        The code above demonstrates a very basic usage of bleu where 
+        - **predictions** is a list of prediction(s)
+        - **references** is a list of reference(s) of actual phrases that are similar to the prediction phrases
+
+        The references in this case is how we evaluate the predictions. Thus, we would need high-quality text for our references in order to determine the accuracy and quality of our model.
+
+- **Human Method**
+
+    Human evaluation involves bilingual reviewers assessing translations based on adequacy (correct meaning), fluency (natural-sounding language), grammar, and terminology. Methods include direct scoring, ranking different translations, and detailed error analysis.
+    While more expensive and time-consuming than automated metrics, human evaluation captures nuances that BLEU cannot, including cultural appropriateness and contextual accuracy. Most robust evaluation approaches combine both BLEU for efficiency and human review for deeper quality insights.
 
 ---
 
