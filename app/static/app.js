@@ -1,6 +1,7 @@
 let startBtn = document.getElementById("startBtn");
 let stopBtn = document.getElementById("stopBtn");
 let transcriptionElement = document.getElementById("transcription");
+let translationElement = document.getElementById("translatedText");
 let translateBtn = document.getElementById("translatetxt");
 let pronounceBtn = document.getElementById("pronouncetxt");
 
@@ -75,3 +76,31 @@ stopBtn.addEventListener("click", () => {
     startBtn.disabled = false;
     stopBtn.disabled = true;
 });
+
+// Translate text
+translateBtn.addEventListener("click", async () => {
+
+    // Disable all other buttons during translation process
+    startBtn.disabled = true;
+    pronounceBtn.disabled = true;
+
+    // Send to Flask backend
+    const response = await fetch("/translate", {
+        method: "POST"
+    });
+
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Display translation result
+    translationElement.textContent = data["translation"] || "Error translating audio.";
+
+    // Enable buttons after translation
+    startBtn.disabled = false;
+    pronounceBtn.disabled = false;
+});
+
+
