@@ -4,6 +4,13 @@ import torch
 from flask import Flask, render_template, request, jsonify
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, MarianMTModel, MarianTokenizer, pipeline
 
+# Used for file creation
+import random
+import string
+
+def generate_sequence(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "uploads"
@@ -67,8 +74,16 @@ def transcribe():
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
-    webm_path = os.path.join(UPLOAD_FOLDER, "audio.webm")
-    wav_path = os.path.join(UPLOAD_FOLDER, "audio.wav")
+
+    # Generate a 6-character sequence
+    sequence = generate_sequence()
+    # print(sequence) 
+
+    webm_path = os.path.join(UPLOAD_FOLDER, f"audio{sequence}.webm")
+    wav_path = os.path.join(UPLOAD_FOLDER, f"audio{sequence}.wav")
+
+    print(webm_path)
+    print(wav_path)
 
     audio_file.save(webm_path)
 
