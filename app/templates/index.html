@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Speech-to-Text Web App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Open+Sans:wght@400;600&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
     <link rel="stylesheet" href="../static/styles.css">
 </head>
+
 <body>
 
-    <div class="history-container">
+    <div class="blank-container" id="history-container">
         <h1>History</h1>
         <!-- <button id="refresh-button">refresh</button> -->
         <ol>
@@ -43,7 +46,7 @@
         <p id="translatedText" class="translated-text">Translated text will appear here...</p>
     </div>
 
-    <div class="history-container">
+    <div class="blank-container">
         <!-- <h1></h1> -->
         <!-- <li>
         </li> -->
@@ -53,4 +56,5 @@
     <!-- <script src="{{ url_for('static', filename='app.js') }}"></script> -->
     <script type="module" src="../static/app.js"></script>
 </body>
+
 </html>
