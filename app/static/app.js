@@ -5,6 +5,9 @@ let translationElement = document.getElementById("translatedText");
 let translateBtn = document.getElementById("translatetxt");
 let pronounceBtn = document.getElementById("pronouncetxt");
 
+const refreshBtn = document.querySelector("button");
+const historylist = document.querySelector("ol");
+
 let mediaRecorder;
 let audioChunks = [];
 
@@ -95,6 +98,9 @@ translateBtn.addEventListener("click", async () => {
 
     const data = await response.json();
 
+    // Update history
+    getEntries();
+
     // Display translation result
     translationElement.textContent = data["translation"] || "Error translating audio.";
 
@@ -102,5 +108,61 @@ translateBtn.addEventListener("click", async () => {
     startBtn.disabled = false;
     pronounceBtn.disabled = false;
 });
+
+function getCode(str, char1, char2) {
+    
+}
+
+refreshBtn.addEventListener("click", async () => {
+    getEntries();
+    console.log('Refreshing!');
+});
+
+const getEntries = (async () => {
+
+    // Clear list
+    historylist.innerHTML = "";
+
+    const zip = new JSZip();
+    
+    // Grabbing the entries in the uploads folder
+    const response = await fetch("/collect", {
+        method: "GET"
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Something went wrong! ERROR: ${response.status}`);
+    } else {
+        let data = response.blob();
+        JSZip.loadAsync(data).then((zip) => {
+            const files = zip.files;
+        
+            console.log(Object.keys(files).length);
+            // Number of entries
+            const numOfPairs = Object.keys(files).length / 3;
+            const dictionary = {};
+
+            Object.keys(files).forEach((filename) => {
+                console.log(files[filename]);
+                if (filename.name.endsWith(".webm")) {
+
+                    // const audioURL = URL.createObjectURL(filename);
+
+                    let listitem = document.createElement("li");
+                    let audio = document.createElement("audio");
+
+                    listitem.appendChild(audio);
+                    historylist.appendChild(listitem);
+
+                    console.log('Handling .webm!');
+                }
+            });
+
+        });
+    }
+    
+});
+
+getEntries();
 
 
