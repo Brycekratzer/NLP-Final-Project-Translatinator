@@ -21,8 +21,10 @@ app = Flask(__name__)
 
 UPLOAD_FOLDER = "uploads"
 ZIP_FOLDER = 'zipped'
+TEMP_FOLDER = 'temp'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(ZIP_FOLDER, exist_ok=True)
+os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 # Set up device for Whisper
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -151,6 +153,33 @@ def translation():
     # Gets translation from model
     result = translator_pipe(transcription)
     
+    # Returns the parsed translation from the model
+    return jsonify({"translation": result[0]['translation_text']})
+
+@app.route('/translateselected', methods=['POST'])
+def translation_selected():
+    """Handles audio translation from a selected transcription."""
+    
+    # Gets global variable for transcription
+    global transcription
+
+    # Receive temporary text file
+    temp_path = os.path.join(TEMP_FOLDER, f"temp.txt")
+
+    if 'text' not in request.files:
+        return jsonify({"error":"no text file provided!"}), 400
+
+    text_file = request.files['text']
+
+    text_file.save(temp_path)
+
+    file = open(temp_path)
+    transcription = file.read()
+    file.close()
+
+    # Gets translation from model
+    result = translator_pipe(transcription)
+
     # Returns the parsed translation from the model
     return jsonify({"translation": result[0]['translation_text']})
 
