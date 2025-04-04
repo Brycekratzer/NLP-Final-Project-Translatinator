@@ -273,9 +273,9 @@ const getEntries = (async () => {
                     // text.innerText = transcription;
 
                     // Building the the element
-                    figure.appendChild(button);
                     figure.appendChild(caption);
                     figure.appendChild(audio);
+                    figure.appendChild(button);
                     // figure.appendChild(text);
 
 
