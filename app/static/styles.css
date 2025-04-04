@@ -44,6 +44,8 @@ body {
 }
 
 .blank-container {
+    display: flex;
+    flex-direction: column;
     text-align: left;
     background-color: #fff;
     padding: 20px;
