@@ -245,6 +245,10 @@ const getEntries = (async () => {
                     // button.onclick(clickHandler(i++));
                     button.onclick = () => {
                         transcriptionElement.innerText = transcription;
+                        
+                        // Enable buttons
+                        translateBtn.disabled = false;
+                        pronounceBtn.disabled = false;
                     }
                     // button.addEventListener("click", clickHandler(i++));
 
