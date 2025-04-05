@@ -1,12 +1,18 @@
 import os
 import subprocess
 import torch
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, MarianMTModel, MarianTokenizer, pipeline
 
 # Used for file creation
 import random
 import string
+
+# Used for searching directories
+from pathlib import Path
+
+# Used to compresss files
+import zipfile
 
 def generate_sequence(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -14,7 +20,11 @@ def generate_sequence(length=6):
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "uploads"
+ZIP_FOLDER = 'zipped'
+TEMP_FOLDER = 'temp'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(ZIP_FOLDER, exist_ok=True)
+os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 # Set up device for Whisper
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -63,6 +73,34 @@ def index():
     """Serves the frontend page."""
     return render_template("index.html")
 
+# Need to get recordings
+@app.route('/collect', methods=['GET'])
+def get_recordings():
+    """Grab the recordings in the upload folder and send them back"""
+    zip_file = 'translations.zip'
+    zip_filepath = os.path.join(ZIP_FOLDER, zip_file)
+    
+    # Remove file if already exists
+    try:
+        os.remove(zip_filepath)
+    except Exception as e:
+        print('*Fails silently*')
+    
+    files = []
+    path = Path(UPLOAD_FOLDER)
+    for child in path.iterdir():
+        files.append(child.name)
+
+    print(files)
+
+    # Create the compressed file
+    with zipfile.ZipFile(zip_filepath, "w") as zip:
+        for filename in files:
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            zip.write(file_path, arcname=filename)
+
+    return send_file(os.getcwd() + "\\" + zip_filepath, as_attachment=True)
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     """Handles audio upload and transcribes it using Whisper."""
@@ -79,11 +117,13 @@ def transcribe():
     sequence = generate_sequence()
     # print(sequence) 
 
-    webm_path = os.path.join(UPLOAD_FOLDER, f"audio{sequence}.webm")
-    wav_path = os.path.join(UPLOAD_FOLDER, f"audio{sequence}.wav")
+    webm_path = os.path.join(UPLOAD_FOLDER, f"audio_{sequence}.webm")
+    wav_path = os.path.join(UPLOAD_FOLDER, f"audio_{sequence}.wav")
 
-    print(webm_path)
-    print(wav_path)
+    transcription_save = os.path.join(UPLOAD_FOLDER, f"transcription_{sequence}.txt")
+
+    # print(webm_path)
+    # print(wav_path)
 
     audio_file.save(webm_path)
 
@@ -95,6 +135,11 @@ def transcribe():
 
     # Transcribe with Whisper
     transcription = process_with_whisper(wav_path)
+
+    # Write to file and save
+    file = open(transcription_save, "w")
+    file.write(transcription)
+    file.close()
 
     return jsonify({"transcription": transcription})
 
@@ -108,6 +153,33 @@ def translation():
     # Gets translation from model
     result = translator_pipe(transcription)
     
+    # Returns the parsed translation from the model
+    return jsonify({"translation": result[0]['translation_text']})
+
+@app.route('/translateselected', methods=['POST'])
+def translation_selected():
+    """Handles audio translation from a selected transcription."""
+    
+    # Gets global variable for transcription
+    global transcription
+
+    # Receive temporary text file
+    temp_path = os.path.join(TEMP_FOLDER, f"temp.txt")
+
+    if 'text' not in request.files:
+        return jsonify({"error":"no text file provided!"}), 400
+
+    text_file = request.files['text']
+
+    text_file.save(temp_path)
+
+    file = open(temp_path)
+    transcription = file.read()
+    file.close()
+
+    # Gets translation from model
+    result = translator_pipe(transcription)
+
     # Returns the parsed translation from the model
     return jsonify({"translation": result[0]['translation_text']})
 
