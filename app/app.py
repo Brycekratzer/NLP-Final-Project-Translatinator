@@ -77,6 +77,9 @@ def index():
 @app.route('/collect', methods=['GET'])
 def get_recordings():
     """Grab the recordings in the upload folder and send them back"""
+    dir = os.getcwd()
+    print(dir)
+
     zip_file = 'translations.zip'
     zip_filepath = os.path.join(ZIP_FOLDER, zip_file)
     
@@ -99,7 +102,8 @@ def get_recordings():
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             zip.write(file_path, arcname=filename)
 
-    return send_file(os.getcwd() + "\\" + zip_filepath, as_attachment=True)
+    # os.chdir("..")
+    return send_file(os.path.join(os.getcwd(), zip_filepath), as_attachment=True)
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
