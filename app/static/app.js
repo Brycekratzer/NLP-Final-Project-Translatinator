@@ -188,20 +188,19 @@ const getEntries = (async () => {
     // Unzipping the file
     zip.loadAsync(data).then((zip) => {
         const files = zip.files;
-        const reverseFiles = Array.from(Object.entries(files)).reverse();
-        // console.log(reverseFiles);
 
-        // console.log(Object.keys(files).length);
+        // Reverse the object by converting to an array via the entires and reverse it so the .txt files will be at the start as opposed to the end
+        const reverseFiles = Object.fromEntries(Array.from(Object.entries(files)).reverse());
 
-        // Number of entries
-        // const numOfPairs = Object.keys(files).length / 3;
+        // Map to store the transcriptions
         const dictionary = new Map();
 
         // Keep track of what button is clicked
         let i = 0;
 
         // Go through all the keys(files) in the unzipped directory
-        Object.keys(files).forEach((filename) => {
+
+        Object.entries(reverseFiles).forEach(([filename, data]) => {
 
             // Grab the code of the file
             const code = getCode(filename, "_", ".");
@@ -218,15 +217,12 @@ const getEntries = (async () => {
                         dictionary.set(code, String(data));
                     }
                 })
-
             }
-
 
             if (element.name.endsWith(".webm")) {
 
                 // Extract as blob
                 element.async('blob').then((data) => {
-                    // console.log(data);
 
                     // Create the element to be added to the list
                     const listitem = document.createElement("li");
@@ -240,19 +236,14 @@ const getEntries = (async () => {
                         throw new Error("Missing transcription file! History is cooked!");
                     }
 
-
-
-                    // button.onclick(clickHandler(i++));
                     button.onclick = () => {
                         transcriptionElement.innerText = transcription;
-                        
+
                         // Enable buttons
                         translateBtn.disabled = false;
                         pronounceBtn.disabled = false;
                     }
-                    // button.addEventListener("click", clickHandler(i++));
 
-                    // button.
                     // button.classList("history-button");
 
                     // Build audio controls
@@ -262,7 +253,7 @@ const getEntries = (async () => {
                     const audio = document.createElement("audio");
 
                     // Set name
-                    // caption.innerText = element.name;
+                    caption.innerText = element.name;
                     caption.innerText = transcription;
 
                     // Enable controls
@@ -273,13 +264,14 @@ const getEntries = (async () => {
                     audio.src = audioURL;
 
                     // Text for transcription
-                    // const text = document.createElement("p");
-                    // text.innerText = transcription;
+                    const text = document.createElement("p");
+                    text.innerText = transcription;
 
                     // Building the the element
                     figure.appendChild(caption);
                     figure.appendChild(audio);
                     figure.appendChild(button);
+
                     // figure.appendChild(text);
 
 
@@ -291,8 +283,6 @@ const getEntries = (async () => {
                 }).catch((error) => {
                     console.error('An error occured when trying to "blob" the file data!');
                 });
-
-                // console.log('Handling .webm!');
             }
         });
 
