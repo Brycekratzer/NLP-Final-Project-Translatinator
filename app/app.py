@@ -41,16 +41,31 @@ pipe = pipeline(
 )
 
 # Load MarianMT model
-model_id_MT = "Helsinki-NLP/opus-mt-en-es"
-translator_model = MarianMTModel.from_pretrained(model_id_MT)
+model_en_spa = "Helsinki-NLP/opus-mt-en-es"
+translator_model_en_spa = MarianMTModel.from_pretrained(model_en_spa)
 
 # Load MarianMT Tokenizor
-translator_tokenizer = MarianTokenizer.from_pretrained(model_id_MT)
+translator_tokenizer = MarianTokenizer.from_pretrained(model_en_spa)
 
 # Create Translation Pipeline
-translator_pipe = pipeline(
+translator_pipe_en_spa = pipeline(
     "translation",
-    model=translator_model,
+    model=translator_model_en_spa,
+    tokenizer=translator_tokenizer,
+    device=device  # Reuse the same device as Whisper
+)
+
+# Load MarianMT model
+model_spa_en = "Helsinki-NLP/opus-mt-es-en"
+translator_model_spa_en = MarianMTModel.from_pretrained(model_spa_en)
+
+# Load MarianMT Tokenizor
+translator_tokenizer = MarianTokenizer.from_pretrained(model_spa_en)
+
+# Create Translation Pipeline
+translator_pipe_spa_en = pipeline(
+    "translation",
+    model=translator_model_spa_en,
     tokenizer=translator_tokenizer,
     device=device  # Reuse the same device as Whisper
 )
@@ -98,15 +113,28 @@ def transcribe():
 
     return jsonify({"transcription": transcription})
 
-@app.route('/translate', methods=['POST'])
-def translation():
+@app.route('/en_spa_trans', methods=['POST'])
+def translation_en_spa():
     """Handles audio translation from transcription."""
     
     # Gets global variable for transcription
     global transcription
     
     # Gets translation from model
-    result = translator_pipe(transcription)
+    result = translator_pipe_en_spa(transcription)
+    
+    # Returns the parsed translation from the model
+    return jsonify({"translation": result[0]['translation_text']})
+
+@app.route('/spa_en_trans', methods=['POST'])
+def translation_spa_en():
+    """Handles audio translation from transcription."""
+    
+    # Gets global variable for transcription
+    global transcription
+    
+    # Gets translation from model
+    result = translator_pipe_spa_en(transcription)
     
     # Returns the parsed translation from the model
     return jsonify({"translation": result[0]['translation_text']})

@@ -2,7 +2,8 @@ let startBtn = document.getElementById("startBtn");
 let stopBtn = document.getElementById("stopBtn");
 let transcriptionElement = document.getElementById("transcription");
 let translationElement = document.getElementById("translatedText");
-let translateBtn = document.getElementById("translatetxt");
+let en_spa_Btn = document.getElementById("en_spa");
+let spa_en_Btn = document.getElementById("spa_en");
 let pronounceBtn = document.getElementById("pronouncetxt");
 
 let mediaRecorder;
@@ -52,7 +53,8 @@ startBtn.addEventListener("click", async () => {
                 transcriptionElement.textContent = data["error"] || data["transcription"] || "Error transcribing audio.";
 
                 // Enable buttons
-                translateBtn.disabled = false;
+                en_spa_Btn.disabled = false;
+                spa_en_Btn.disabled = false;
                 pronounceBtn.disabled = false;
             } catch (error) {
                 transcriptionElement.textContent = "Processing error.";
@@ -77,15 +79,16 @@ stopBtn.addEventListener("click", () => {
     stopBtn.disabled = true;
 });
 
-// Translate text
-translateBtn.addEventListener("click", async () => {
+// Translate english to spanish text
+en_spa_Btn.addEventListener("click", async () => {
 
     // Disable all other buttons during translation process
     startBtn.disabled = true;
     pronounceBtn.disabled = true;
+    spa_en_Btn.disabled = true;
 
     // Send to Flask backend
-    const response = await fetch("/translate", {
+    const response = await fetch("/en_spa_trans", {
         method: "POST"
     });
 
@@ -101,6 +104,35 @@ translateBtn.addEventListener("click", async () => {
     // Enable buttons after translation
     startBtn.disabled = false;
     pronounceBtn.disabled = false;
+    spa_en_Btn.disabled = false;
+});
+
+// Translate spanish to english text
+spa_en_Btn.addEventListener("click", async () => {
+
+    // Disable all other buttons during translation process
+    startBtn.disabled = true;
+    pronounceBtn.disabled = true;
+    spa_en_Btn.disabled = true;
+
+    // Send to Flask backend
+    const response = await fetch("/spa_en_trans", {
+        method: "POST"
+    });
+
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Display translation result
+    translationElement.textContent = data["translation"] || "Error translating audio.";
+
+    // Enable buttons after translation
+    startBtn.disabled = false;
+    pronounceBtn.disabled = false;
+    spa_en_Btn.disabled = false;
 });
 
 
