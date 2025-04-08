@@ -2,7 +2,8 @@ let startBtn = document.getElementById("startBtn");
 let stopBtn = document.getElementById("stopBtn");
 let transcriptionElement = document.getElementById("transcription");
 let translationElement = document.getElementById("translatedText");
-let translateBtn = document.getElementById("translatetxt");
+let en_spa_Btn = document.getElementById("en_spa");
+let spa_en_Btn = document.getElementById("spa_en");
 let pronounceBtn = document.getElementById("pronouncetxt");
 
 const refreshBtn = document.querySelector("button");
@@ -61,7 +62,8 @@ startBtn.addEventListener("click", async () => {
                 await getEntries();
 
                 // Enable buttons
-                translateBtn.disabled = false;
+                en_spa_Btn.disabled = false;
+                spa_en_Btn.disabled = false;
                 pronounceBtn.disabled = false;
             } catch (error) {
                 transcriptionElement.textContent = "Processing error.";
@@ -94,12 +96,13 @@ stopBtn.addEventListener("click", async () => {
 
 });
 
-// Translate text
-translateBtn.addEventListener("click", async () => {
+// Translate english to spanish text
+en_spa_Btn.addEventListener("click", async () => {
 
     // Disable all other buttons during translation process
     startBtn.disabled = true;
     pronounceBtn.disabled = true;
+    spa_en_Btn.disabled = true;
 
     // Response is no longer const as it must account for 2 states
     let response;
@@ -116,18 +119,17 @@ translateBtn.addEventListener("click", async () => {
         formData.append("text", textBlob, filename);
 
         // Send to Flask backend (with body)
-        response = await fetch("/translateselected", {
+        response = await fetch("/translate_eng_selected", {
             method: "POST",
             body: formData
         });
     } else {
 
         // Send to Flask backend
-        response = await fetch("/translate", {
+        response = await fetch("/en_spa_trans", {
             method: "POST"
         });
     }
-
 
     if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
@@ -142,6 +144,57 @@ translateBtn.addEventListener("click", async () => {
     startBtn.disabled = false;
     pronounceBtn.disabled = false;
 
+    spa_en_Btn.disabled = false;
+});
+
+// Translate spanish to english text
+spa_en_Btn.addEventListener("click", async () => {
+
+    // Disable all other buttons during translation process
+    startBtn.disabled = true;
+    pronounceBtn.disabled = true;
+    spa_en_Btn.disabled = true;
+
+    // Response is no longer const as it must account for 2 states
+    let response;
+
+    if (transcriptionElement.textContent.length != 0) {
+        // There is a transcription (selected)
+
+        // Create a text from transcription
+        const textBlob = new Blob([transcriptionElement.textContent], { type: "text/plain" });
+        const filename = "transcription.txt";
+
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append("text", textBlob, filename);
+
+        // Send to Flask backend (with body)
+        response = await fetch("/translate_spa_selected", {
+            method: "POST",
+            body: formData
+        });
+    } else {
+
+        // Send to Flask backend
+        response = await fetch("/spa_en_trans", {
+            method: "POST"
+        });
+    }
+
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Display translation result
+    translationElement.textContent = data["translation"] || "Error translating audio.";
+
+    // Enable buttons after translation
+    startBtn.disabled = false;
+    pronounceBtn.disabled = false;
+    spa_en_Btn.disabled = false;
 });
 
 // Kinda like a sleep function! [NOT USED CURRENTLY]
@@ -240,8 +293,10 @@ const getEntries = (async () => {
                         transcriptionElement.innerText = transcription;
 
                         // Enable buttons
-                        translateBtn.disabled = false;
+                        // translateBtn.disabled = false;
                         pronounceBtn.disabled = false;
+                        spa_en_Btn.disabled = false;
+                        en_spa_Btn.disabled = false;
                     }
 
                     // button.classList("history-button");
