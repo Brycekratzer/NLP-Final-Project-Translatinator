@@ -164,9 +164,10 @@ def test(model, test_loader, tokenizer, bertscore, device):
             targets = data['target'].to(device, dtype = torch.long)
             ids = data['input'].to(device, dtype = torch.long)
             generated_ids = model.generate(input_ids = ids)
+            generated_targs = model.generate(input_ids = targets)
             
             predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-            references = tokenizer.batch_decode(targets, skip_special_tokens=True)
+            references = tokenizer.batch_decode(generated_targs, skip_special_tokens=True)
             
             # Add each prediction/reference pair individually
             for pred, ref in zip(predictions, references):
