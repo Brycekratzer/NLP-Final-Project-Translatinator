@@ -142,14 +142,16 @@ def val(model, val_loader, tokenizer, bertscore, device):
             targets = data['target'].to(device, dtype = torch.long)
             ids = data['input'].to(device, dtype = torch.long)
             generated_ids = model.generate(input_ids = ids)
+            generated_targs = model.generate(input_ids = targets)
             
-            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-            references = tokenizer.batch_decode(targets, skip_special_tokens=True)[0]
-            print(predictions)
-            print(references)
+            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+            references = tokenizer.batch_decode(generated_targs, skip_special_tokens=True)
             
-            all_predictions.append(predictions)
-            all_references.append(references)
+            # Add each prediction/reference pair individually
+            for pred, ref in zip(predictions, references):
+                all_predictions.append(pred)
+                all_references.append(ref) 
+            
         results = bertscore.compute(predictions=all_predictions, references=all_references, device=device, lang='es')
     return results['f1']
 
@@ -164,11 +166,14 @@ def test(model, test_loader, tokenizer, bertscore, device):
             ids = data['input'].to(device, dtype = torch.long)
             generated_ids = model.generate(input_ids = ids)
             
-            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-            references = tokenizer.batch_decode(targets, skip_special_tokens=True)[0]
+            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+            references = tokenizer.batch_decode(targets, skip_special_tokens=True)
             
-            all_predictions.append(predictions)
-            all_references.append(references)
+            # Add each prediction/reference pair individually
+            for pred, ref in zip(predictions, references):
+                all_predictions.append(pred)
+                all_references.append(ref) 
+                
         results = bertscore.compute(predictions=all_predictions, references=all_references, lang='es', device=device)
     return results
 
