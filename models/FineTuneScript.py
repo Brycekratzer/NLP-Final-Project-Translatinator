@@ -8,7 +8,10 @@ from transformers import MarianMTModel, MarianTokenizer
 
 print('Starting Script')
 
-sentences = pd.read_csv('models/1millsentences.csv')
+sentences = pd.read_csv('1millsentences.csv')
+sentences = sentences[:int(len(sentences) * .0001)]
+
+print('Read File')
 
 # Preparing Training Data
 train_X = sentences['english'][:int(len(sentences) * .7)] # English only for input
@@ -85,9 +88,13 @@ val_dataset = TextDataset(val_X, val_y, tokenizer)
 batch_size = 16
 
 # Create DataLoaders 
+print('Starting Data Loader')
 train_loader = DataLoader(train_dataset, batch_size=batch_size)
+print('Train Data Loaded')
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
+print('Test Data Loaded')
 val_loader = DataLoader(val_dataset, batch_size=batch_size)
+print('Val Data Loaded')
 
 print('Data Preprocessed')
 
@@ -97,7 +104,7 @@ base_model = MarianMTModel.from_pretrained(model_name)
 
 print('Loaded Model')
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('mps')
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 print(f'Loaded Device as: {device}')
 
@@ -136,8 +143,10 @@ def val(model, val_loader, tokenizer, bertscore, device):
             ids = data['input'].to(device, dtype = torch.long)
             generated_ids = model.generate(input_ids = ids)
             
-            predictions = tokenizer.batch_decode(generated_ids, kip_special_tokens=True)[0]
+            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
             references = tokenizer.batch_decode(targets, skip_special_tokens=True)[0]
+            print(predictions)
+            print(references)
             
             all_predictions.append(predictions)
             all_references.append(references)
@@ -155,7 +164,7 @@ def test(model, test_loader, tokenizer, bertscore, device):
             ids = data['input'].to(device, dtype = torch.long)
             generated_ids = model.generate(input_ids = ids)
             
-            predictions = tokenizer.batch_decode(generated_ids, kip_special_tokens=True)[0]
+            predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
             references = tokenizer.batch_decode(targets, skip_special_tokens=True)[0]
             
             all_predictions.append(predictions)
@@ -171,6 +180,8 @@ print('Training Starting')
 
 for epoch in range(NUM_EPOCH):
     loss = train(model, train_loader, optim, device)
+    torch.save(model.state_dict(), "fine_tuned_en_es.bin")
+    model.config.to_json_file("config.json")
     
     f1_score = val(model, val_loader, tokenizer, bertscore, device)
     print(f'Epoch: {epoch+1} \nBERTScore F1: {np.mean(f1_score)}\nTraining Loss: {loss}')
@@ -188,19 +199,20 @@ print('-------------------------------')
 print('-------------------------------')
 print('         Base MT Model         ')
 print('-------------------------------')
-print(f'F1         : {np.mean(f1_score_based_model['f1'])}')
-print(f'Recall     : {np.mean(f1_score_based_model['recall'])}')
-print(f'Precision  : {np.mean(f1_score_based_model['precision'])}')
+print(f"F1         : {np.mean(f1_score_based_model['f1'])}")
+print(f"Recall     : {np.mean(f1_score_based_model['recall'])}")
+print(f"Precision  : {np.mean(f1_score_based_model['precision'])}")
 print('-------------------------------')
 print('        Fine Tuned Model       ')
 print('-------------------------------')
-print(f'F1         : {np.mean(f1_score_finetuned['f1'])}')
-print(f'Recall     : {np.mean(f1_score_finetuned['recall'])}')
-print(f'Precision  : {np.mean(f1_score_finetuned['precision'])}')
+print(f"F1         : {np.mean(f1_score_finetuned['f1'])}")
+print(f"Recall     : {np.mean(f1_score_finetuned['recall'])}")
+print(f"Precision  : {np.mean(f1_score_finetuned['precision'])}")
 print('-------------------------------')
 
 
-
+torch.save(model.state_dict(), "fine_tuned_en_es.bin")
+model.config.to_json_file("config.json")
 
 
 
