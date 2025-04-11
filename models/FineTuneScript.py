@@ -9,7 +9,6 @@ from transformers import MarianMTModel, MarianTokenizer
 print('Starting Script')
 
 sentences = pd.read_csv('1millsentences.csv')
-sentences = sentences[:int(len(sentences) * .0001)]
 
 print('Read File')
 
