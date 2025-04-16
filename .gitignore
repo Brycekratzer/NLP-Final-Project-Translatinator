@@ -1,2 +1,3 @@
 data/en-es_Full_Dataset.csv
 models/1millsentences.csv
+models/fine_tuned_en_es.bin
