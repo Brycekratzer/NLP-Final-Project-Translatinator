@@ -27,3 +27,6 @@ pwd
 echo "Starting python script"
 # Run the python script
 srun python3 FineTuneScript.py
+
+echo "python script over"
+
