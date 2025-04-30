@@ -42,7 +42,7 @@ The application is structured with a Flask backend that serves the frontend and 
    ```
    python app/app.py
    ```
-5. Access the web interface at `http://localhost:5000`
+5. Access the web interface at `http://localhost:5000` on Google Chrome. ***Will NOT work on Safari***
 
 ## Usage
 
